@@ -250,8 +250,10 @@ class MarvinBotRaePlugin(Plugin):
     def on_button(self, update):
         query = update.callback_query
         data = query.data.split(":")
-        self.bot.deleteMessage(chat_id=query.message.chat_id, message_id=query.message.message_id)
-        # query.message.edit_reply_markup(reply_markup=None)
+        try:
+            self.bot.deleteMessage(chat_id=query.message.chat_id, message_id=query.message.message_id)
+        except:
+            query.message.edit_reply_markup(reply_markup=None)
 
         msg = ""
 
