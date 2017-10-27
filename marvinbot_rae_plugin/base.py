@@ -143,7 +143,7 @@ class MarvinBotRaePlugin(Plugin):
     def http(self, word="", url=""):
         headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
-            "Connection": "keep-alive"   
+            "Connection": "close"   
         }
         
         with requests.Session() as s:
@@ -179,14 +179,10 @@ class MarvinBotRaePlugin(Plugin):
                 headers['Origin'] = "http://dle.rae.es"
                 headers['Cache-Control'] = "max-age=0"
 
-                if not url:
-                    payload = (
-                        ("w" , word),
-                        ("m" , "form")
-                    )
-                    url = "{}/srv/search/".format(self.config.get('base_url'))
-                    headers['Referer'] = url
-                    response = s.post(url, params=payload, data=params, headers=headers)
+                if word:
+                    url = "{}/srv/search/?w={}&m=form".format(self.config.get('base_url'), word)
+                    headers['Referer'] = "{}/srv/search/".format(self.config.get('base_url'))
+                    response = s.post(url, data=params, headers=headers)
                 else:
                     headers['Referer'] = url
                     response = s.post(url, data=params, headers=headers)
