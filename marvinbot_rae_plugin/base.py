@@ -62,7 +62,7 @@ class MarvinBotRaePlugin(Plugin):
                     r['word'] = word.text   
                     abbr = html_soup.find('p', class_='n2')
                     if abbr:
-                        r['abbr'] = abbr.text
+                        r['abbr'] = abbr.text.replace("*","")
         
                     definitions = []
                     for d in html_soup.find_all('p', class_="j"):
