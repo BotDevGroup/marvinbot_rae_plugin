@@ -220,11 +220,21 @@ class MarvinBotRaePlugin(Plugin):
                 rae = self.http(word=word)
                 if 'options' in rae:
                     options = []
-                    
+                    options_tmp = []
+                    options_count = 1
+
                     for o in rae['options']:
                         d = "rae:{}".format(o['href'])
-                        options.append([InlineKeyboardButton(text=o['word'].strip("."), callback_data=d)])
-                    
+                        options_tmp.append(InlineKeyboardButton(text=o['word'].strip("."), callback_data=d))
+
+                        if options_count % 3 == 0:
+                            options.append(options_tmp)
+                            options_tmp = []
+
+                        options_count = options_count + 1
+                    else:
+                        options.append(options_tmp)
+
                     if len(options) > 0:
                         reply_markup = InlineKeyboardMarkup(options)
                     else:
