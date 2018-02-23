@@ -236,6 +236,7 @@ class MarvinBotRaePlugin(Plugin):
                         options.append(options_tmp)
 
                     if len(options) > 0:
+                        options.append([InlineKeyboardButton(text="Cancelar", callback_data="rae:__cancel__")])
                         reply_markup = InlineKeyboardMarkup(options)
                     else:
                         msg = "❌ No se encontro una relación"
@@ -264,6 +265,8 @@ class MarvinBotRaePlugin(Plugin):
         msg = ""
 
         try:
+            if data[1] == "__cancel__":
+                return
             url = "{}/srv/{}".format(self.config.get('base_url'), data[1])
             rae = self.http(url=url)
             msg = self.make_msg(rae)
