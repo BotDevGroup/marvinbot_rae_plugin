@@ -233,7 +233,8 @@ class MarvinBotRaePlugin(Plugin):
 
                         options_count = options_count + 1
                     else:
-                        options.append(options_tmp)
+                        if len(options_tmp) > 0:
+                            options.append(options_tmp)
 
                     if len(options) > 0:
                         options.append([InlineKeyboardButton(text="Cancelar", callback_data="rae:__cancel__")])
