@@ -13,6 +13,7 @@ import logging
 import re
 import requests
 import ctypes
+import traceback
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ class MarvinBotRaePlugin(Plugin):
         return {
             'short_name': self.name,
             'enabled': True,
-            'base_url': 'http://dle.rae.es'
+            'base_url': 'https://dle.rae.es'
         }
 
     def configure(self, config):
@@ -44,13 +45,13 @@ class MarvinBotRaePlugin(Plugin):
     def html_parse(self, response):
         html_soup = BeautifulSoup(response.text, 'html.parser')
         r = {}
-        if html_soup.find('noscript'):
+        if "Please enable JavaScript to view the page content" in response.text:
             r['error'] = "noscript"
         else:
             error = html_soup.find('p')
             if error and "La palabra" in error.text:
                 options = []
-                for l in html_soup.find_all('li'):
+                for l in html_soup.find('div', id='resultados').find_all('li'):
                     t = {}
                     t['word'] = l.a.text
                     t['href'] = l.a['href']
@@ -70,7 +71,7 @@ class MarvinBotRaePlugin(Plugin):
                     r['definitions'] = definitions
                 else:
                     options = []
-                    for l in html_soup.find_all('li'):
+                    for l in html_soup.find('div', id='resultados').find_all('li'):
                         t = {}
                         t['word'] = l.a.text
                         t['href'] = l.a['href']
@@ -150,7 +151,6 @@ class MarvinBotRaePlugin(Plugin):
             if not url:
                 payload = (
                     ("w" , word),
-                    ("m" , "form")
                 )
                 url = "{}/srv/search/".format(self.config.get('base_url'))
                 response = s.get(url, params=payload, headers=headers)
@@ -176,11 +176,11 @@ class MarvinBotRaePlugin(Plugin):
                     ("TS017111a7_pd" , "0")
                 )
 
-                headers['Origin'] = "http://dle.rae.es"
+                headers['Origin'] = self.config.get('base_url')
                 headers['Cache-Control'] = "max-age=0"
 
                 if word:
-                    url = "{}/srv/search/?w={}&m=form".format(self.config.get('base_url'), word)
+                    url = "{}/srv/search/?w={}".format(self.config.get('base_url'), word)
                     headers['Referer'] = "{}/srv/search/".format(self.config.get('base_url'))
                     response = s.post(url, data=params, headers=headers)
                 else:
@@ -249,6 +249,7 @@ class MarvinBotRaePlugin(Plugin):
         except Exception as err:
             log.error("Rae error: {}".format(err))
             msg = "❌ Un error ha ocurrido"
+            traceback.print_exc()
 
         if reply_markup:
             self.adapter.bot.sendMessage(chat_id=message.chat_id, text="📚 Quiso decir:", reply_markup=reply_markup)
@@ -274,6 +275,7 @@ class MarvinBotRaePlugin(Plugin):
         except Exception as err:
             log.error("Rae button error: {}".format(err))
             msg = "❌ Un error ha ocurrido"
+            traceback.print_exc()
 
         self.adapter.bot.sendMessage(chat_id=query.message.chat_id, text=msg, parse_mode='Markdown', disable_web_page_preview = True)
           
