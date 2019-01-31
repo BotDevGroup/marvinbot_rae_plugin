@@ -43,6 +43,7 @@ class MarvinBotRaePlugin(Plugin):
         pass
 
     def html_parse(self, response):
+        response.encoding = "utf-8"
         html_soup = BeautifulSoup(response.text, 'html.parser')
         r = {}
         if "Please enable JavaScript to view the page content" in response.text:
